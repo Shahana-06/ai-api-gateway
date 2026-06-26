@@ -1,0 +1,77 @@
+# docker-compose.yml
+#
+# Local development environment — runs all services together.
+#
+# USAGE:
+#   docker-compose up -d        # start all in background
+#   docker-compose logs -f      # tail logs
+#   docker-compose down         # stop and remove containers
+#   docker-compose down -v      # stop AND wipe database volumes
+#
+# SERVICES:
+#   postgres — RDS equivalent (local)
+#   redis    — ElastiCache equivalent (local)
+#   gateway  — your Node.js app
+#
+# NOTE: The gateway's .env file must exist before running docker-compose.
+#   cp gateway/.env.example gateway/.env
+#   # edit the .env file with your values
+
+version: '3.9'
+
+services:
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-gateway-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ai_gateway
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: localpassword
+    ports:
+      - "5432:5432"   # exposed for local psql / TablePlus access
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai-gateway-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"   # exposed for local redis-cli access
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: ai-gateway-node
+    restart: unless-stopped
+    env_file: ./gateway/.env
+    environment:
+      # Override .env values to point at the Docker service names
+      POSTGRES_HOST: postgres
+      REDIS_HOST:    redis
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
