@@ -16,13 +16,13 @@
 const express            = require('express');
 const router             = express.Router();
 const { authenticate }   = require('../middleware/auth');
+const rateLimiter        = require('../middleware/rateLimiter');
 const { classifyIntent } = require('../services/intentService');
 const { proxyToUpstream }= require('../services/proxyService');
-const { pool }           = require('../config/database');
 const { Errors }         = require('../utils/errors');
 const logger             = require('../utils/logger');
 
-router.post('/api/gateway', authenticate, async (req, res) => {
+router.post('/api/gateway', authenticate, rateLimiter, async (req, res) => {
   const startTime = Date.now();
 
   // 1. Classify intent
