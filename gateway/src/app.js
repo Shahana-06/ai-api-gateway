@@ -69,6 +69,7 @@ app.use(healthRouter);
 
 // Auth routes — Phase 2
 app.use('/api/auth', require('./modules/auth/authRoutes'));
+app.use(require('./routes/gateway'));   // add this line
 // app.use('/api',      require('./modules/gateway/routes'));      // Phase 4
 // app.use('/dashboard',require('./modules/dashboard/routes'));    // Phase 9
 
