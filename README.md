@@ -144,9 +144,6 @@ uvicorn app.main:app --reload --port 8000
 | 8 | Observability dashboard | ✅ |
 | 9 | AWS deployment | ✅ |
 ```
-
-Add them to README with:
-```markdown
 ## Screenshots
 ![Health Check](screenshots/health-check.png)
 ![Intent Classification](screenshots/intent detection.png)
