@@ -19,6 +19,7 @@ const { authenticate }   = require('../middleware/auth');
 const rateLimiter        = require('../middleware/rateLimiter');
 const { classifyIntent } = require('../services/intentService');
 const { proxyToUpstream }= require('../services/proxyService');
+const { pool }           = require('../config/database');
 const { Errors }         = require('../utils/errors');
 const logger             = require('../utils/logger');
 
@@ -46,6 +47,8 @@ router.post('/api/gateway', authenticate, rateLimiter, async (req, res) => {
 
   const latency = Date.now() - startTime;
 
+  console.log('USER:', req.user, 'API KEY ID:', req.apiKeyId);
+
   // 5. Log to Postgres (await is fine at our scale)
   try {
     await pool.query(
@@ -61,8 +64,9 @@ router.post('/api/gateway', authenticate, rateLimiter, async (req, res) => {
         classification.tokens_used || 0,
       ]
     );
+
   } catch (dbErr) {
-    // Log the error but don't fail the request — DB logging is non-critical
+    console.error('DB LOG ERROR:', dbErr.message);
     logger.error({ dbErr }, '[gateway] Failed to write request log');
   }
 

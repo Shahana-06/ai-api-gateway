@@ -23,8 +23,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(healthRouter);
 
 // 6. Routes
-app.use('/api/auth', require('./modules/auth/authRoutes'));
+app.use('/api/auth',   require('./modules/auth/authRoutes'));
 app.use(require('./routes/gateway'));
+app.use(require('./routes/dashboard'));
 
 // 7. 404 + Error handler
 app.use(notFound);
