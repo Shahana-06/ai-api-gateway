@@ -1,0 +1,7 @@
+ai-service/.env
+gateway/.env
+ai-service/venv/
+node_modules/
+ai-service/.env
+ai-service/venv/
+gateway/.env
